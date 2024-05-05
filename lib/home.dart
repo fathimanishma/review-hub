@@ -28,7 +28,7 @@ class _HomeState extends State<Home> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Center(
+              Center( 
                   child: AppText(
                       text: 'REVIEW HUB',
                       weight: FontWeight.bold,
