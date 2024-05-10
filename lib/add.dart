@@ -1,6 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:review_hub_admin/constants/color.dart';
 import 'package:review_hub_admin/customWidgets/customText.dart';
 
@@ -15,17 +17,66 @@ class _AddState extends State<Add> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _movieNameController = TextEditingController();
   final TextEditingController _aboutController = TextEditingController();
-  
-  // Category Dropdown management
+  final ImagePicker _picker = ImagePicker();
+  File? _imageFile;
+
+  String? _imageUrl;
+
+ Future<void> _pickImage() async {
+  try {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      var imageFile = await pickedFile.readAsBytes();  // Adjusted for web compatibility
+      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
+      UploadTask uploadTask = storageRef.putData(imageFile);  // Adjusted for web compatibility
+      TaskSnapshot snapshot = await uploadTask;
+      String imageUrl = await snapshot.ref.getDownloadURL();
+
+      setState(() {
+        _imageUrl = imageUrl;  // Use this URL in Image.network
+      });
+    }
+  } catch (e) {
+    print('Failed to pick or upload image: $e');
+  }
+}
+
+// Remove the image uploading part from sendData as it is redundant now.
+// Future<void> sendData() async {
+//   if (_formKey.currentState?.validate() ?? false) {
+//     await FirebaseFirestore.instance.collection('reviews').add({
+//       'name': _movieNameController.text,
+//       'about': _aboutController.text,
+//       'category': _selectedCategory,
+//       'image_url': _imageUrl,  // Directly use the URL from image picking
+//       'status': '0'
+//     });
+
+//     // Reset the form fields
+//     _movieNameController.clear();
+//     _aboutController.clear();
+//     _selectedCategory = null;
+//     _imageUrl = null;  // Clear the image URL
+//     setState(() {});
+//   }
+// }
+
   String? _selectedCategory;
-  final List<String> _categories = ['Movie', 'Channel', 'Service', 'Products','Hotel'];
+  final List<String> _categories = [
+    'Movie',
+    'Channel',
+    'Service',
+    'Product',
+    'Hotel'
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: maincolor,
-        title:  AppText(
+        title: AppText(
           size: 20,
           text: 'Review Hub',
           textcolor: Colors.white,
@@ -51,16 +102,23 @@ class _AddState extends State<Add> {
                     SizedBox(
                       width: 350,
                       height: 350,
-                      child: Image.asset(
-                        'assets/images/prem.jpeg',
-                        fit: BoxFit.cover,
-                      )),
+                      child: _imageUrl == null
+                          ? const Center(
+                              child: Text('No Image Selected',
+                                  style: TextStyle(color: Colors.grey)))
+                          : Image.network(_imageUrl!, fit: BoxFit.cover),
+                    ),
                     const SizedBox(height: 10),
-                    Container(
-                      height: 40,width: 120,
-                     color: maincolor,
-                      // style: ElevatedButton.styleFrom(primary: maincolor),
-                      child: Center(child: const Text('Add Image', style: TextStyle(color: Colors.white))),
+                    InkWell(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 40,
+                        width: 120,
+                        color: maincolor,
+                        child: const Center(
+                            child: Text('Add Image',
+                                style: TextStyle(color: Colors.white))),
+                      ),
                     )
                   ],
                 ),
@@ -85,7 +143,8 @@ class _AddState extends State<Add> {
                         items: _categories.map((String category) {
                           return DropdownMenuItem(
                             value: category,
-                            child: Text(category, style: const TextStyle(color: Colors.white)),
+                            child: Text(category,
+                                style: const TextStyle(color: Colors.white)),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -95,14 +154,24 @@ class _AddState extends State<Add> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      buildTextFormField(_movieNameController, 'Movie Name'),
+                      buildTextFormField(_movieNameController, ' Name'),
                       const SizedBox(height: 20),
-                      buildTextFormField(_aboutController, 'About', maxLines: 5),
+                      buildTextFormField(_aboutController, 'About',
+                          maxLines: 5),
                       const SizedBox(height: 40),
-                      Container(
-                        // style: ElevatedButton.styleFrom(primary: maincolor, fixedSize: const Size(300, 40)),
-                       height: 40,width: 300,color: maincolor,
-                        child:  Center(child: AppText(text: 'Submit', weight: FontWeight.w500, size: 15, textcolor: Colors.white)),
+                      InkWell(
+                        onTap: sendData,
+                        child: Container(
+                          height: 40,
+                          width: 300,
+                          color: maincolor,
+                          child: Center(
+                              child: AppText(
+                                  text: 'Submit',
+                                  weight: FontWeight.w500,
+                                  size: 15,
+                                  textcolor: Colors.white)),
+                        ),
                       )
                     ],
                   ),
@@ -115,7 +184,8 @@ class _AddState extends State<Add> {
     );
   }
 
-  Widget buildTextFormField(TextEditingController controller, String hintText, {int maxLines = 1}) {
+  Widget buildTextFormField(TextEditingController controller, String hintText,
+      {int maxLines = 1}) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
@@ -130,7 +200,8 @@ class _AddState extends State<Add> {
         filled: true,
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.white),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(8),
@@ -142,4 +213,43 @@ class _AddState extends State<Add> {
       ),
     );
   }
+
+ Future<void> sendData() async {
+  if (_formKey.currentState?.validate() ?? false) {
+    // Debugging: check if the imageUrl is available
+    print('Sending data with image URL: $_imageUrl');
+
+    if (_imageUrl == null) {
+      // Show an error message or disable the submit button until image is uploaded
+      print('Image URL is not set. Please upload an image first.');
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance.collection('items').add({
+        'name': _movieNameController.text,
+        'about': _aboutController.text,
+        'category': _selectedCategory,
+        'image_url': _imageUrl,
+        'status': '0'
+      });
+
+      // Clear the form fields after successful submission
+      _movieNameController.clear();
+      _aboutController.clear();
+      _selectedCategory = null;
+      _imageUrl = null;
+      setState(() {});
+
+      // Optionally, show a success message
+      print('Data successfully sent to the database.');
+    } catch (e) {
+      // Handle errors in sending data to the database
+      print('Error sending data to the database: $e');
+    }
+  } else {
+    print('Form is not valid. Please review the fields.');
+  }
+}
+
 }

@@ -7,6 +7,7 @@ import 'package:review_hub_admin/babyproducts.dart';
 import 'package:review_hub_admin/channels.dart';
 import 'package:review_hub_admin/constants/color.dart'; // Ensure this file defines all colors properly
 import 'package:review_hub_admin/customWidgets/customText.dart';
+import 'package:review_hub_admin/login.dart';
 import 'package:review_hub_admin/movies.dart';
 import 'package:review_hub_admin/restaurents.dart';
 import 'package:review_hub_admin/services.dart';
@@ -107,13 +108,7 @@ class _DashboardState extends State<Dashboard> {
           textcolor: white, // Ensure color is correctly referenced
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {
-              _showNotificationDialog();
-              // Handle notifications tap if needed
-            },
-          ),
+         
           const SizedBox(width: 20),
           Builder(
             // Builder used to provide a suitable context
@@ -271,6 +266,24 @@ class _DashboardState extends State<Dashboard> {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return Add();
+                    },
+                  ));
+                },
+              ),
+            ),
+             Padding(
+              padding: const EdgeInsets.only(top: 25),
+              child: ListTile(
+                title: AppText(
+                  size: 25,
+                  text: 'Logout',
+                  textcolor: maincolor,
+                  weight: FontWeight.w600,
+                ),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return Login();
                     },
                   ));
                 },

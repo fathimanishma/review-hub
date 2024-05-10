@@ -1,231 +1,183 @@
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:responsive_grid/responsive_grid.dart';
-import 'package:review_hub_admin/add.dart';
-import 'package:review_hub_admin/babyproducts.dart';
-import 'package:review_hub_admin/channels.dart';
 import 'package:review_hub_admin/constants/color.dart';
 import 'package:review_hub_admin/customWidgets/customText.dart';
-import 'package:review_hub_admin/movies.dart';
+import 'package:review_hub_admin/dashboard.dart';
+import 'package:review_hub_admin/restaurents.dart';
+import 'package:review_hub_admin/channels.dart';
 import 'package:review_hub_admin/services.dart';
+import 'package:review_hub_admin/babyproducts.dart';
+import 'package:review_hub_admin/add.dart';
 
 class Restaurents extends StatefulWidget {
-  const Restaurents({super.key});
+  const Restaurents({Key? key}) : super(key: key);
 
   @override
-  State<Restaurents> createState() => _RestaurentsState();
+  _RestaurentsState createState() => _RestaurentsState();
 }
 
 class _RestaurentsState extends State<Restaurents> {
+  late final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late final String _RestaurentsCollection = 'items'; // Replace with actual collection name
+
+  late Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _futureRestaurents;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureRestaurents = _fetchRestaurents();
+  }
+
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _fetchRestaurents() async {
+    try {
+      final querySnapshot = await _firestore.collection(_RestaurentsCollection).where('category',isEqualTo: 'Hotel').get();
+      return querySnapshot.docs.toList();
+    } catch (error) {
+      print('Error fetching Restaurents: $error');
+      rethrow; // Rethrow for error handling in FutureBuilder
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: maincolor,
+        title: const Text("Restaurents Review"),
       ),
       body: Column(
         children: [
-          
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-               
-                AppText(text: 'Restaurents', weight: FontWeight.w500, size: 18, textcolor: customBalck),
-                 RatingBar.builder(
-              initialRating: 5,
-              minRating: 1,
-              direction: Axis.horizontal,
-              allowHalfRating: true,
-              itemCount: 5,
-              itemSize: 20,
-              unratedColor: customBalck,
-              itemPadding: const EdgeInsets.symmetric(horizontal: 1),
-              itemBuilder: (context, _) => const Icon(
-                Icons.star_border,
-                color: Colors.amber,
-              ),
-              onRatingUpdate: (rating) {
-                //print(rating);
-                setState(() {
-                  var ratvalue = rating;
-                });
-                // print(ratvalue);
-              },
-            ),
+                AppText(text: 'Restaurents', weight: FontWeight.bold, size: 18, textcolor: customBalck),
+                RatingBar.builder(
+                  initialRating: 3,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemSize: 20,
+                  unratedColor: Colors.grey,
+                  itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber),
+                  onRatingUpdate: (rating) {
+                    // Implement your functionality with the rating value
+                  },
+                ),
               ],
             ),
           ),
-        
           Expanded(
-            child: ResponsiveGridList(
-              desiredItemWidth: 300,
-              minSpacing: 15,
-              children: List.generate(20, (index)=> index+1).map((i) {
-                return Container(
-                  height: 250,
-                  
-                  alignment: Alignment(0, 0),
-               
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Image.asset('assets/images/hotel.jpeg',fit: BoxFit.cover,),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text('Remove',style: TextStyle(color: white),),
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 10,),
-                      Row(
-                        children: [
-                          AppText(text: 'Take It Chessy', weight: FontWeight.w500, size: 15, textcolor: customBalck),
-                        ],
-                      )
-                    ],
-                  ),
-                );
-              }).toList()
-                ),
+            child: FutureBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
+              future: _futureRestaurents,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text("Error: ${snapshot.error}");
+                } else if (snapshot.hasData) {
+                  final Restaurents = snapshot.data!;
+                  return ResponsiveGridList(
+                    desiredItemWidth:300,
+                    minSpacing: 10,
+                    children: Restaurents.map((movie) => _buildMovieCard(movie)).toList(),
+                  );
+                } else {
+                  return const Text('No Restaurents found');
+                }
+              },
+            ),
           ),
         ],
       ),
-        endDrawer: Drawer(
+      drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Home',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: maincolor,
               ),
+              child: Text('Navigation Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Movies',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Movies();
-                    },
-                  )); // Close the drawer
-                },
-              ),
+            ListTile(
+              title: Text('Home'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboard()));
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Restaurent',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Restaurents();
-                    },
-                  )); // Close the drawer
-                },
-              ),
+            
+            ListTile(
+              title: Text('Restaurants'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurents()));
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Channels',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Channel();
-                    },
-                  ));
-                },
-              ),
+            ListTile(
+              title: Text('Channels'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Channel()));
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Services',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Services();
-                    },
-                  ));
-                },
-              ),
+            ListTile(
+              title: Text('Services'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Services()));
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Baby Products',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return BabyProducts();
-                    },
-                  ));
-                },
-              ),
+            ListTile(
+              title: Text('Baby Products'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => BabyProducts()));
+              },
             ),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Add',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Add();
-                    },
-                  ));
-                },
-              ),
+            ListTile(
+              title: Text('Add New Item'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Add()));
+              },
             ),
           ],
         ),
       ),
+      
     );
   }
+  Widget _buildMovieCard(QueryDocumentSnapshot<Map<String, dynamic>> movie) {
+  final movieData = movie.data();
+  if (movieData == null) return const SizedBox(); // Handle potential null data
+
+  final imageUrl = movieData['image_url'] as String;
+  final name = movieData['name'] as String;
+
+  return Card(
+    child: Container(
+      height: 300,
+      width: 150,
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            height: 240,
+            width: 350,
+            child: Image.network(
+              imageUrl,
+              // height: 150,
+              fit: BoxFit.cover,
+              // errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(name ?? 'No name', style: TextStyle(color: customBalck, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    ),
+  );
+}
+
 }
