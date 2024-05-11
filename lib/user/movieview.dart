@@ -8,7 +8,10 @@ import 'package:review_hub/CustomWidgets/customTextField.dart';
 import 'package:review_hub/constants/colors.dart';
 
 class MovieView extends StatefulWidget {
-  const MovieView({super.key});
+  var name;
+  var image;
+  var about;
+   MovieView({super.key, required this.name, required this.image, required this.about});
 
   @override
   State<MovieView> createState() => _MovieViewState();
@@ -27,8 +30,8 @@ class _MovieViewState extends State<MovieView> {
           children: [
             Container(
               height: 150,
-                        child: Image.asset(
-            'assets/images/premlu.jpeg',
+                        child: Image.network(
+            widget.image,
             fit: BoxFit.fill,
                         ),
                         width: double.infinity,
@@ -40,7 +43,7 @@ class _MovieViewState extends State<MovieView> {
                   children: [
                     SizedBox(height: 20,),
                     AppText(
-                        text: 'Premalu',
+                        text: widget.name,
                         weight: FontWeight.bold,
                         size: 20,
                         textcolor: customBalck),
@@ -54,7 +57,7 @@ class _MovieViewState extends State<MovieView> {
                                 width: 400,
                                 child: Expanded(
                                     child: Text(
-                                  'Premalu is a 2024 Indian Malayalam-language romantic comedy film directed by Girish A. D. and produced by Bhavana Studios, in the company of Fahadh Faasil and Friends and Working Class Hero',
+                                      widget.about,
                                   style: GoogleFonts.poppins(),
                                 ))),
                           ),

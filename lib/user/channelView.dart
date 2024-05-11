@@ -6,7 +6,14 @@ import 'package:review_hub/CustomWidgets/customText.dart';
 import 'package:review_hub/constants/colors.dart';
 
 class ChannelView extends StatefulWidget {
-  const ChannelView({super.key});
+  var name;
+  var image;
+  var about;
+  ChannelView(
+      {super.key,
+      required this.name,
+      required this.image,
+      required this.about});
 
   @override
   State<ChannelView> createState() => _ChannelViewState();
@@ -25,18 +32,20 @@ class _ChannelViewState extends State<ChannelView> {
           children: [
             Container(
               height: 200,
-                        child: Image.asset(
-            'assets/images/asianet.jpeg',
-            fit: BoxFit.fill,
-                        ),
-                        width: double.infinity,
-                      ),
+              child: Image.network(
+                widget.image,
+                fit: BoxFit.fill,
+              ),
+              width: double.infinity,
+            ),
             SizedBox(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    SizedBox(height: 20,),
+                    SizedBox(
+                      height: 20,
+                    ),
                     AppText(
                         text: 'asianet',
                         weight: FontWeight.bold,
@@ -48,16 +57,15 @@ class _ChannelViewState extends State<ChannelView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: SizedBox(
-                                width: 400,
-                                child: Expanded(
-                                    child: Text(
-            'Asianet is an Indian Malayalam language general entertainment pay television channel operated by Disney Star, a subsidiary of Disney India.',                                  ))),
-                          ),
+                              child: SizedBox(
+                                  width: 400,
+                                  child: Expanded(child: Text(widget.about)))),
                         ],
                       ),
                     ),
-                    SizedBox(height: 40,),
+                    SizedBox(
+                      height: 40,
+                    ),
                     AppText(
                         text: 'Rating and Reviews',
                         weight: FontWeight.bold,
@@ -80,7 +88,9 @@ class _ChannelViewState extends State<ChannelView> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20,),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(28.0),
                       child: Row(
@@ -126,23 +136,23 @@ class _ChannelViewState extends State<ChannelView> {
               height: 100,
               color: grey,
               child: ListTile(
-                
-                 leading:  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/profile.png'),
-                  ),
-                 
-                      title:AppText(
-                          text: 'Anees',
-                          weight: FontWeight.w400,
-                          size: 15,
-                          textcolor: white),
-                    subtitle:   AppText(
-                          text: 'Very nice channel.Like it',
-                          weight: FontWeight.w400,
-                          size: 15,
-                          textcolor: white),
-                          trailing: Icon(CupertinoIcons.heart,color: white,),
-                 
+                leading: CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/profile.png'),
+                ),
+                title: AppText(
+                    text: 'Anees',
+                    weight: FontWeight.w400,
+                    size: 15,
+                    textcolor: white),
+                subtitle: AppText(
+                    text: 'Very nice channel.Like it',
+                    weight: FontWeight.w400,
+                    size: 15,
+                    textcolor: white),
+                trailing: Icon(
+                  CupertinoIcons.heart,
+                  color: white,
+                ),
               ),
             ),
             Padding(

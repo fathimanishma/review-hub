@@ -7,7 +7,14 @@ import 'package:review_hub/CustomWidgets/customTextField.dart';
 import 'package:review_hub/constants/colors.dart';
 
 class ServicesView extends StatefulWidget {
-  const ServicesView({super.key});
+  var name;
+  var image;
+  var about;
+  ServicesView(
+      {super.key,
+      required this.name,
+      required this.image,
+      required this.about});
 
   @override
   State<ServicesView> createState() => _ServicesViewState();
@@ -26,20 +33,22 @@ class _ServicesViewState extends State<ServicesView> {
           children: [
             Container(
               height: 200,
-                        child: Image.asset(
-            'assets/images/service.jpeg',
-            fit: BoxFit.fill,
-                        ),
-                        width: double.infinity,
-                      ),
+              child: Image.network(
+                widget.image,
+                fit: BoxFit.fill,
+              ),
+              width: double.infinity,
+            ),
             SizedBox(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    SizedBox(height: 20,),
+                    SizedBox(
+                      height: 20,
+                    ),
                     AppText(
-                        text: 'Service',
+                        text: widget.name,
                         weight: FontWeight.bold,
                         size: 20,
                         textcolor: customBalck),
@@ -51,15 +60,14 @@ class _ServicesViewState extends State<ServicesView> {
                           Expanded(
                             child: SizedBox(
                                 width: 400,
-                                child: Expanded(
-                                    child: Text(
-            'Nestled in the heart of Calicut Town, Paramount Tower is a convenient 5-minute walk from Calicut Railway Station and Calicut Town hall.',                                    style: GoogleFonts.poppins(),
-                                ))),
+                                child: Expanded(child: Text(widget.about))),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 40,),
+                    SizedBox(
+                      height: 40,
+                    ),
                     AppText(
                         text: 'Rating and Reviews',
                         weight: FontWeight.bold,
@@ -82,7 +90,9 @@ class _ServicesViewState extends State<ServicesView> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20,),
+                    SizedBox(
+                      height: 20,
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(28.0),
                       child: Row(
@@ -128,23 +138,23 @@ class _ServicesViewState extends State<ServicesView> {
               height: 100,
               color: grey,
               child: ListTile(
-                
-                 leading:  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/profile.png'),
-                  ),
-                 
-                      title:AppText(
-                          text: 'Anees',
-                          weight: FontWeight.w400,
-                          size: 15,
-                          textcolor: white),
-                    subtitle:   AppText(
-                          text: 'Very nice Service.Like it',
-                          weight: FontWeight.w400,
-                          size: 15,
-                          textcolor: white),
-                          trailing: Icon(CupertinoIcons.heart,color: white,),
-                 
+                leading: CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/profile.png'),
+                ),
+                title: AppText(
+                    text: 'Anees',
+                    weight: FontWeight.w400,
+                    size: 15,
+                    textcolor: white),
+                subtitle: AppText(
+                    text: 'Very nice Service.Like it',
+                    weight: FontWeight.w400,
+                    size: 15,
+                    textcolor: white),
+                trailing: Icon(
+                  CupertinoIcons.heart,
+                  color: white,
+                ),
               ),
             ),
             Padding(

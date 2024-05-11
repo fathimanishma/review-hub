@@ -7,7 +7,10 @@ import 'package:review_hub/CustomWidgets/customTextField.dart';
 import 'package:review_hub/constants/colors.dart';
 
 class RestaurentView extends StatefulWidget {
-  const RestaurentView({super.key});
+   var name;
+  var image;
+  var about;
+   RestaurentView({super.key, required this.name, required this.image, required this.about});
 
   @override
   State<RestaurentView> createState() => _RestaurentViewState();
@@ -26,8 +29,8 @@ class _RestaurentViewState extends State<RestaurentView> {
           children: [
             Container(
               height: 200,
-                        child: Image.asset(
-            'assets/images/restaurent.jpeg',
+                        child: Image.network(
+           widget.image,
             fit: BoxFit.fill,
                         ),
                         width: double.infinity,
@@ -39,7 +42,7 @@ class _RestaurentViewState extends State<RestaurentView> {
                   children: [
                     SizedBox(height: 20,),
                     AppText(
-                        text: 'Hotel',
+                        text: widget.name,
                         weight: FontWeight.bold,
                         size: 20,
                         textcolor: customBalck),
@@ -53,8 +56,7 @@ class _RestaurentViewState extends State<RestaurentView> {
                                 width: 400,
                                 child: Expanded(
                                     child: Text(
-                    'Nestled in the heart of Calicut Town, Paramount Tower is a convenient 5-minute walk from Calicut Railway Station and Calicut Town hall.',                                    style: GoogleFonts.poppins(),
-                                ))),
+widget.about                                ))),
                           ),
                         ],
                       ),

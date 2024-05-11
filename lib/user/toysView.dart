@@ -7,7 +7,10 @@ import 'package:review_hub/CustomWidgets/customTextField.dart';
 import 'package:review_hub/constants/colors.dart';
 
 class ToysView extends StatefulWidget {
-  const ToysView({super.key});
+  var name;
+  var image;
+  var about;
+   ToysView({super.key, required this.name, required this.image, required this.about});
 
   @override
   State<ToysView> createState() => _ToysViewState();
@@ -25,8 +28,8 @@ class _ToysViewState extends State<ToysView> {
         child: Column(
           children: [
             Container(height: 200,
-                        child: Image.asset(
-            'assets/images/toys.jpeg',
+                        child: Image.network(
+            widget.image,
             fit: BoxFit.fill,
                         ),
                         width: double.infinity,
@@ -38,7 +41,7 @@ class _ToysViewState extends State<ToysView> {
                   children: [
                     SizedBox(height: 20,),
                     AppText(
-                        text: 'Dolls',
+                        text: widget.name,
                         weight: FontWeight.bold,
                         size: 20,
                         textcolor: customBalck),
@@ -52,8 +55,7 @@ class _ToysViewState extends State<ToysView> {
                                 width: 400,
                                 child: Expanded(
                                     child: Text(
-            'Buy soft dolls for babies online under specific franchises like Hello Kitty, Mickey Mouse, Dora, and many more. Grab the best offers on Flipkart toy',                                    style: GoogleFonts.poppins(),
-                                ))),
+widget.about                                ))),
                           ),
                         ],
                       ),
