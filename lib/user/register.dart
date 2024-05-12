@@ -89,6 +89,7 @@ class _RegisterState extends State<Register> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 28),
       child: CustomTextField(
+        
         hint: hint,
         controller: controller,
         validator: (value) => value?.isEmpty ?? true ? 'Please enter $hint' : null,

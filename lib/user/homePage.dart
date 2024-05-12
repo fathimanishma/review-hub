@@ -31,45 +31,45 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: maincolor,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text("User Name"),
-              accountEmail: Text("user@example.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: Text(
-                  "A",
-                  style: TextStyle(fontSize: 40.0),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.notifications),
-              title: Text('notification'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
+      // drawer: Drawer(
+      //   child: ListView(
+      //     padding: EdgeInsets.zero,
+      //     children: <Widget>[
+      //       UserAccountsDrawerHeader(
+      //         accountName: Text("User Name"),
+      //         accountEmail: Text("user@example.com"),
+      //         currentAccountPicture: CircleAvatar(
+      //           backgroundColor: Colors.orange,
+      //           child: Text(
+      //             "A",
+      //             style: TextStyle(fontSize: 40.0),
+      //           ),
+      //         ),
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.home),
+      //         title: Text('Home'),
+      //         onTap: () {
+      //           Navigator.pop(context);
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.notifications),
+      //         title: Text('notification'),
+      //         onTap: () {
+      //           Navigator.pop(context);
+      //         },
+      //       ),
+      //       ListTile(
+      //         leading: Icon(Icons.settings),
+      //         title: Text('Settings'),
+      //         onTap: () {
+      //           Navigator.pop(context);
+      //         },
+      //       ),
+      //     ],
+      //   ),
+      // ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),

@@ -48,22 +48,22 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           ),
-           Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Row(
-              children: [
-               Icon(Icons.notifications),
-               SizedBox(width: 10,),
-                InkWell(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return Notifications();
-                    },));
-                  },
-                  child: AppText(text: 'Notifications', weight: FontWeight.w500, size: 18, textcolor: customBalck)),
-              ],
-            ),
-          ),
+          //  Padding(
+          //   padding: const EdgeInsets.all(18.0),
+          //   child: Row(
+          //     children: [
+          //      Icon(Icons.notifications),
+          //      SizedBox(width: 10,),
+          //       InkWell(
+          //         onTap: (){
+          //           Navigator.push(context, MaterialPageRoute(builder: (context) {
+          //             return Notifications();
+          //           },));
+          //         },
+          //         child: AppText(text: 'Notifications', weight: FontWeight.w500, size: 18, textcolor: customBalck)),
+          //     ],
+          //   ),
+          // ),
            Padding(
             padding: const EdgeInsets.all(18.0),
             child: Row(

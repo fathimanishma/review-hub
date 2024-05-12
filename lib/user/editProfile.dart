@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:review_hub/CustomWidgets/customButton.dart';
 import 'package:review_hub/CustomWidgets/customText.dart';
 import 'package:review_hub/constants/colors.dart';
+import 'package:review_hub/user/homePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
@@ -24,20 +26,43 @@ class _EditProfileState extends State<EditProfile> {
 
   Future<void> loadData() async {
     SharedPreferences spref = await SharedPreferences.getInstance();
+    var id = spref.getString('id') ?? '';
     var nm = spref.getString('name') ?? '';
     var em = spref.getString('email') ?? '';
     var ps = spref.getString('password') ?? '';
-    name = TextEditingController(text: nm);
+    setState(() {
+      name = TextEditingController(text: nm);
     email = TextEditingController(text: em);
     mobile = TextEditingController(text: ps);
+    });
+    
   }
 
   Future<void> edit() async {
     SharedPreferences spref = await SharedPreferences.getInstance();
-    var id = spref.getString('id');
+ var id = spref.getString('id') ?? '';
     var nm = name!.text;
     var em = email!.text;
     var ps = mobile!.text;
+
+
+        spref.setString('name', nm);
+        spref.setString('email', em);
+        spref.setString('password', ps);
+
+    FirebaseFirestore.instance.collection('users').doc(id).update({
+    'name': nm,
+    'email': em,
+    'password':ps
+  }).then((value) {
+    print("User Updated");
+     Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => HomePage()),
+        );
+  }).catchError((error) {
+    print("Failed to update user: $error");
+  });
     // Perform your edit operations here
   }
 
@@ -65,13 +90,14 @@ class _EditProfileState extends State<EditProfile> {
             Padding(
               padding: const EdgeInsets.only(left: 28, right: 28, top: 28),
               child: TextFormField(
+                style: TextStyle(color: Colors.white),
                 controller: name,
                 decoration: InputDecoration(
                   errorBorder:
                       UnderlineInputBorder(borderSide: BorderSide.none),
                   fillColor: maincolor,
                   filled: true,
-                  hintText: 'JOHN PETER',
+              
                   hintStyle: TextStyle(color: white),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 10, horizontal: 15),
@@ -93,12 +119,13 @@ class _EditProfileState extends State<EditProfile> {
               padding: const EdgeInsets.only(left: 28, right: 28, top: 10),
               child: TextFormField(
                 controller: email,
+                style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   errorBorder:
                       UnderlineInputBorder(borderSide: BorderSide.none),
                   fillColor: maincolor,
                   filled: true,
-                  hintText: 'hohn@gmail.com',
+              
                   hintStyle: TextStyle(color: white),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 10, horizontal: 15),
@@ -119,13 +146,14 @@ class _EditProfileState extends State<EditProfile> {
             Padding(
               padding: const EdgeInsets.only(left: 28, right: 28, top: 28),
               child: TextFormField(
+                style: TextStyle(color: Colors.white),
                 controller: mobile,
                 decoration: InputDecoration(
                   errorBorder:
                       UnderlineInputBorder(borderSide: BorderSide.none),
                   fillColor: maincolor,
                   filled: true,
-                  hintText: '+912345667788',
+               
                   hintStyle: TextStyle(color: white),
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 10, horizontal: 15),

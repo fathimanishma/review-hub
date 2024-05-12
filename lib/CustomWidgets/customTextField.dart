@@ -28,6 +28,7 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         validator: validator,
         obscureText: obscure,
+        style: TextStyle(color: Colors.white),
         readOnly: readonly,
         decoration: InputDecoration(
           errorBorder: UnderlineInputBorder(borderSide: BorderSide.none),
