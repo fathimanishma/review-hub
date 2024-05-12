@@ -1,11 +1,10 @@
-import 'dart:developer';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:review_hub_admin/add.dart';
 import 'package:review_hub_admin/babyproducts.dart';
 import 'package:review_hub_admin/channels.dart';
-import 'package:review_hub_admin/constants/color.dart'; // Ensure this file defines all colors properly
+import 'package:review_hub_admin/constants/color.dart';
 import 'package:review_hub_admin/customWidgets/customText.dart';
 import 'package:review_hub_admin/login.dart';
 import 'package:review_hub_admin/movies.dart';
@@ -20,109 +19,97 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  void _showNotificationDialog() {
-  final overlay = Overlay.of(context)!;
-  late OverlayEntry overlayEntry;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      top: 50, // Distance from the top
-      right: 10, // Distance from the right
-      child: Material(
-        elevation: 4.0,
-        child: Container(
-          padding: EdgeInsets.all(10),
-          color: Colors.white,
-          width: 300,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                title: Text('Notification 1'),
-                subtitle: Text('Your order has been shipped.'),
-                trailing: IconButton(
-                  icon: Icon(Icons.close),
+   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> getData() async {
+    final querySnapshot = await FirebaseFirestore.instance.collection('reviews').get();
+    return querySnapshot.docs;
+  }
+
+  void _showNotificationDialog() {
+    final overlay = Overlay.of(context)!;
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50,
+        right: 10,
+        child: Material(
+          elevation: 4.0,
+          child: Container(
+            padding: EdgeInsets.all(10),
+            color: Colors.white,
+            width: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                FutureBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
+                  future: getData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: snapshot.data!.map((doc) => Card(
+                      child: ListTile(
+                        title: Text(doc['user'] ?? 'No Name'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(doc['item'] ?? 'No Category'),
+                            Text(doc['review'] ?? 'No Category'),
+                          ],
+                        ),
+                      ),
+                    )).toList(),
+                  );
+                }  else {
+                      return Text('No notifications');
+                    }
+                  },
+                ),
+                TextButton(
+                  child: Text('Dismiss'),
                   onPressed: () => overlayEntry.remove(),
                 ),
-              ),
-              ListTile(
-                title: Text('Notification 2'),
-                subtitle: Text('Your review has been approved.'),
-              ),
-               ListTile(
-                title: Text('Notification 1'),
-                subtitle: Text('Your order has been shipped.'),
-               
-              ),
-              ListTile(
-                title: Text('Notification 2'),
-                subtitle: Text('Your review has been approved.'),
-              ),
-             
-              
-               ListTile(
-                title: Text('Notification 1'),
-                subtitle: Text('Your order has been shipped.'),
-               
-              ),
-              ListTile(
-                title: Text('Notification 2'),
-                subtitle: Text('Your review has been approved.'),
-              ),
-               ListTile(
-                title: Text('Notification 1'),
-                subtitle: Text('Your order has been shipped.'),
-               
-              ),
-            
-              ListTile(
-                title: Text('Notification 2'),
-                subtitle: Text('Your review has been approved.'),
-              ),
-              TextButton(
-                child: Text('Dismiss'),
-                onPressed: () {
-                  overlayEntry.remove();
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
 
-  overlay.insert(overlayEntry);
-}
+    overlay.insert(overlayEntry);
+  }
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: maincolor, // Ensure this is the correct variable name
         title: AppText(
           size: 20,
           text: 'REVIEW HUB',
           weight: FontWeight.normal,
-          textcolor: white, // Ensure color is correctly referenced
+          textcolor: white,
         ),
         actions: [
-         
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.white),
+            onPressed: _showNotificationDialog,
+          ),
           const SizedBox(width: 20),
-          Builder(
-            // Builder used to provide a suitable context
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () {
-                Scaffold.of(context)
-                    .openEndDrawer(); // Opens endDrawer with correct context
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
           ),
         ],
       ),
-      backgroundColor: grey, // Ensure this color is defined in your constants
+      backgroundColor: grey,
       body: Stack(
         children: [
           const Positioned.fill(
@@ -137,163 +124,59 @@ class _DashboardState extends State<Dashboard> {
               style: GoogleFonts.poppins(
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
-                color: maincolor, // Ensure this is the correct variable name
+                color: maincolor,
               ),
               textAlign: TextAlign.center,
             ),
           ),
         ],
       ),
-      endDrawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Home',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Movies',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Movies();
-                    },
-                  )); // Close the drawer
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Restaurent',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Restaurents();
-                    },
-                  )); // Close the drawer
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Channels',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Channel();
-                    },
-                  ));
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Services',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Services();
-                    },
-                  ));
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Baby Products',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return BabyProducts();
-                    },
-                  ));
-                },
-              ),
-            ),
+      endDrawer: _buildDrawer(),
+    );
+  }
 
-            Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Add',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Add();
-                    },
-                  ));
-                },
-              ),
-            ),
-             Padding(
-              padding: const EdgeInsets.only(top: 25),
-              child: ListTile(
-                title: AppText(
-                  size: 25,
-                  text: 'Logout',
-                  textcolor: maincolor,
-                  weight: FontWeight.w600,
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return Login();
-                    },
-                  ));
-                },
-              ),
-            ),
-          ],
-        ),
+  Drawer _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          // Add drawer header if needed
+          _buildDrawerItem(icon: Icons.home, title: 'Home', onTap: () => Dashboard()),
+          SizedBox(height: 15,),
+          _buildDrawerItem(icon: Icons.movie, title: 'Movies', page: Movies()),
+          SizedBox(height: 15,),
+          _buildDrawerItem(icon: Icons.restaurant, title: 'Restaurants', page: Restaurents()),
+          SizedBox(height: 15,),
+          _buildDrawerItem(icon: Icons.tv, title: 'Channels', page: Channel()),
+          SizedBox(height: 15,),
+          _buildDrawerItem(icon: Icons.build, title: 'Services', page: Services()),
+          SizedBox(height: 15,),
+          _buildDrawerItem(icon: Icons.child_friendly, title: 'Baby Products', page: BabyProducts()),
+          SizedBox(height: 15,),
+          _buildDrawerItem(icon: Icons.add, title: 'Add', page: Add()),
+          SizedBox(height: 15,),
+          _buildDrawerItem(icon: Icons.exit_to_app, title: 'Logout', page: Login()),
+        ],
       ),
     );
   }
 
-  
+  ListTile _buildDrawerItem({required IconData icon, required String title, Widget? page, VoidCallback? onTap}) {
+    return ListTile(
+      leading: Icon(icon),
+      title: AppText(
+        size: 25,
+        text: title,
+        textcolor: maincolor,
+        weight: FontWeight.w600,
+      ),
+      onTap: () {
+        Navigator.pop(context); // Always close the drawer
+        if (page != null) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+        }
+        onTap?.call();
+      },
+    );
+  }
 }

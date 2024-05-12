@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:review_hub_admin/constants/color.dart';
 import 'package:review_hub_admin/customWidgets/customText.dart';
 
@@ -235,14 +236,28 @@ class _AddState extends State<Add> {
       });
 
       // Clear the form fields after successful submission
-      _movieNameController.clear();
+     
+
+      // Optionally, show a success message
+      print('Data successfully sent to the database.');
+  DateTime now = DateTime.now();
+  DateFormat formatter = DateFormat('dd-MM-yyyy');
+  String formattedDate = formatter.format(now);
+
+       await FirebaseFirestore.instance.collection('admin_notification').add({
+        
+        'name': _movieNameController.text,
+        'about': _aboutController.text,
+        'category': _selectedCategory,
+        'date': formattedDate,
+        'status': '0'
+      });
+
+ _movieNameController.clear();
       _aboutController.clear();
       _selectedCategory = null;
       _imageUrl = null;
       setState(() {});
-
-      // Optionally, show a success message
-      print('Data successfully sent to the database.');
     } catch (e) {
       // Handle errors in sending data to the database
       print('Error sending data to the database: $e');
