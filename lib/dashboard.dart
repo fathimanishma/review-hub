@@ -43,6 +43,10 @@ class _DashboardState extends State<Dashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
+                TextButton(
+                  child: Text('Dismiss'),
+                  onPressed: () => overlayEntry.remove(),
+                ),
                 FutureBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
                   future: getData(),
                   builder: (context, snapshot) {
@@ -71,10 +75,7 @@ class _DashboardState extends State<Dashboard> {
                     }
                   },
                 ),
-                TextButton(
-                  child: Text('Dismiss'),
-                  onPressed: () => overlayEntry.remove(),
-                ),
+                
               ],
             ),
           ),

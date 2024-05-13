@@ -111,8 +111,8 @@ class _LoginState extends State<Login> {
   void login(){
    
  if (_formKey.currentState?.validate() ?? false) {
-    const String adminEmail = 'a';
-    const String adminPassword = 'a';
+    const String adminEmail = 'admin@gmail.com';
+    const String adminPassword = 'admin@123';
 
     if (email.text == adminEmail && password.text == adminPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
