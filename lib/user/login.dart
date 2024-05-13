@@ -5,6 +5,7 @@ import 'package:review_hub/CustomWidgets/customButton.dart';
 import 'package:review_hub/CustomWidgets/customText.dart';
 import 'package:review_hub/CustomWidgets/customTextField.dart';
 import 'package:review_hub/constants/colors.dart';
+import 'package:review_hub/user/emailpage.dart';
 import 'package:review_hub/user/homePage.dart';
 import 'package:review_hub/user/register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -193,11 +194,18 @@ class _LoginSection extends StatelessWidget {
   Padding _buildForgotPassword(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(18.0),
-      child: AppText(
-        text: 'Forgot Password',
-        weight: FontWeight.w400,
-        size: 12,
-        textcolor: red,
+      child: InkWell(
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return EmailPage();
+          },));
+        },
+        child: AppText(
+          text: 'Forgot Password',
+          weight: FontWeight.w400,
+          size: 12,
+          textcolor: red,
+        ),
       ),
     );
   }

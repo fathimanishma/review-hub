@@ -7,6 +7,7 @@ import 'package:review_hub/user/babytoys.dart';
 import 'package:review_hub/user/channel.dart';
 import 'package:review_hub/user/movies.dart';
 import 'package:review_hub/user/restaurent.dart';
+import 'package:review_hub/user/resturentview.dart';
 import 'package:review_hub/user/services.dart';
 
 class Home extends StatefulWidget {
@@ -17,7 +18,26 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  TextEditingController search = TextEditingController();
+ final search = TextEditingController();
+
+  late Stream<QuerySnapshot> _serviceStream;
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _serviceStream = FirebaseFirestore.instance
+          .collection('items')
+          .where('name', isGreaterThanOrEqualTo: query)
+          .where('name', isLessThan: query + 'z')
+          .snapshots();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the stream with all mechanics initially
+    _serviceStream = FirebaseFirestore.instance.collection('items').snapshots();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +46,7 @@ class _HomeState extends State<Home> {
         padding: const EdgeInsets.all(12.0),
         child: ListView(
           children: [
-            _buildSearchBar(),
+            // _buildSearchBar(),
             _buildCategory("Movie", Movies()),
             _buildCategory("Hotel", Restaurents()),
             _buildCategory("Product", Toys()),
@@ -42,6 +62,7 @@ class _HomeState extends State<Home> {
     return SizedBox(
       height: 50,
       child: TextFormField(
+          onChanged: _onSearchChanged,
         controller: search,
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search),
@@ -85,7 +106,7 @@ class _HomeState extends State<Home> {
               ),
             ),
             RatingBar.builder(
-              initialRating: 5,
+              initialRating: 3.5,
               minRating: 1,
               ignoreGestures: true,
               direction: Axis.horizontal,
@@ -105,14 +126,15 @@ class _HomeState extends State<Home> {
         SizedBox(height: 15),
         SizedBox(
           height: 120,
-          child: InkWell(
-            onTap: () {
+          child: InkWell(            onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return route;
               }));
             },
-            child: FutureBuilder(
-              future: _fetchCategoryItems(title),
+            child:FutureBuilder(
+            future: search.text.isEmpty
+                ? _fetchCategoryItems(title)
+                : _fetchSearchResults(search.text),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
@@ -168,4 +190,17 @@ class _HomeState extends State<Home> {
       throw error;
     }
   }
+  Future<List<DocumentSnapshot>> _fetchSearchResults(String searchTerm) async {
+  try {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('items')
+        .where('name', isGreaterThanOrEqualTo: searchTerm)
+        .where('name', isLessThan: searchTerm + 'z')
+        .get();
+    return querySnapshot.docs.toList();
+  } catch (error) {
+    print('Error fetching search results: $error');
+    throw error;
+  }
+}
 }

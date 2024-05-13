@@ -88,9 +88,9 @@ class _ProfileState extends State<Profile> {
                SizedBox(width: 10,),
                 InkWell(
                     onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
                       return HomeScreen();
-                    },));
+                    },)); 
                   },
                   child: AppText(text: 'Logout', weight: FontWeight.w500, size: 18, textcolor: customBalck)),
               ],
