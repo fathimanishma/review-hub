@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:review_hub/CustomWidgets/customButton.dart';
 import 'package:review_hub/CustomWidgets/customText.dart';
 import 'package:review_hub/CustomWidgets/customTextField.dart';
@@ -242,17 +244,55 @@ class _LoginSection extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          height: 30,
-          child: Image.asset('assets/images/google.png'),
-        ),
-        AppText(
-          text: 'Sign in with Google',
-          weight: FontWeight.w400,
-          size: 12,
-          textcolor: white,
-        )
+        // Container(
+        //   height: 30,
+        //   child: Image.asset('assets/images/google.png'),
+        // ),
+        // InkWell(
+        //    onTap: (){
+        //     _loginWithGoogle(context);
+        //   },
+        //   child: AppText(
+        //     text: 'Sign in with Google',
+        //     weight: FontWeight.w400,
+        //     size: 12,
+        //     textcolor: white,
+        //   ),
+        // )
       ],
     );
   }
+  
+Future<void> _loginWithGoogle(BuildContext context) async {
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+  try {
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser != null) {
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => HomePage()), // Assume HomePage is the target after login
+        );
+      }
+    }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to sign in with Google: $error'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
 }
