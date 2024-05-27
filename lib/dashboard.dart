@@ -146,7 +146,7 @@ class _DashboardState extends State<Dashboard> {
           SizedBox(height: 15,),
           _buildDrawerItem(icon: Icons.movie, title: 'Movies', page: Movies()),
           SizedBox(height: 15,),
-          _buildDrawerItem(icon: Icons.restaurant, title: 'Restaurants', page: Restaurents()),
+          _buildDrawerItem(icon: Icons.restaurant, title: 'Restaurants', page: Restaurants()),
           SizedBox(height: 15,),
           _buildDrawerItem(icon: Icons.tv, title: 'Channels', page: Channel()),
           SizedBox(height: 15,),

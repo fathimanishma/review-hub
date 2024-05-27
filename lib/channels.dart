@@ -122,7 +122,7 @@ class _ChannelState extends State<Channel> {
             ListTile(
               title: Text('Restaurants'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurents()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurants()));
               },
             ),
             ListTile(

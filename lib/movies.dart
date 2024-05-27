@@ -8,8 +8,8 @@ import 'package:review_hub_admin/constants/color.dart';
 import 'package:review_hub_admin/customWidgets/customText.dart';
 import 'package:review_hub_admin/dashboard.dart';
 import 'package:review_hub_admin/login.dart';
-import 'package:review_hub_admin/restaurents.dart';
 import 'package:review_hub_admin/channels.dart';
+import 'package:review_hub_admin/restaurents.dart';
 import 'package:review_hub_admin/services.dart';
 import 'package:review_hub_admin/babyproducts.dart';
 import 'package:review_hub_admin/add.dart';
@@ -121,7 +121,7 @@ class _MoviesState extends State<Movies> {
             ListTile(
               title: Text('Restaurants'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurents()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurants()));
               },
             ),
             ListTile(

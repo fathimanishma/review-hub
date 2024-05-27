@@ -6,37 +6,36 @@ import 'package:responsive_grid/responsive_grid.dart';
 import 'package:review_hub_admin/constants/color.dart';
 import 'package:review_hub_admin/customWidgets/customText.dart';
 import 'package:review_hub_admin/dashboard.dart';
-import 'package:review_hub_admin/restaurents.dart';
 import 'package:review_hub_admin/channels.dart';
 import 'package:review_hub_admin/services.dart';
 import 'package:review_hub_admin/babyproducts.dart';
 import 'package:review_hub_admin/add.dart';
 
-class Restaurents extends StatefulWidget {
-  const Restaurents({Key? key}) : super(key: key);
+class Restaurants extends StatefulWidget {
+  const Restaurants({Key? key}) : super(key: key);
 
   @override
-  _RestaurentsState createState() => _RestaurentsState();
+  _RestaurantsState createState() => _RestaurantsState();
 }
 
-class _RestaurentsState extends State<Restaurents> {
+class _RestaurantsState extends State<Restaurants> {
   late final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late final String _RestaurentsCollection = 'items'; // Replace with actual collection name
+  late final String _RestaurantsCollection = 'items'; // Replace with actual collection name
 
-  late Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _futureRestaurents;
+  late Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _futureRestaurants;
 
   @override
   void initState() {
     super.initState();
-    _futureRestaurents = _fetchRestaurents();
+    _futureRestaurants = _fetchRestaurants();
   }
 
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _fetchRestaurents() async {
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _fetchRestaurants() async {
     try {
-      final querySnapshot = await _firestore.collection(_RestaurentsCollection).where('category',isEqualTo: 'Hotel').get();
+      final querySnapshot = await _firestore.collection(_RestaurantsCollection).where('category',isEqualTo: 'Hotel').get();
       return querySnapshot.docs.toList();
     } catch (error) {
-      print('Error fetching Restaurents: $error');
+      print('Error fetching Restaurants: $error');
       rethrow; // Rethrow for error handling in FutureBuilder
     }
   }
@@ -46,7 +45,7 @@ class _RestaurentsState extends State<Restaurents> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: maincolor,
-        title: const Text("Restaurents Review"),
+        title: const Text("Restaurants Review"),
       ),
       body: Column(
         children: [
@@ -55,7 +54,7 @@ class _RestaurentsState extends State<Restaurents> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AppText(text: 'Restaurents', weight: FontWeight.bold, size: 18, textcolor: customBalck),
+                AppText(text: 'Restaurants', weight: FontWeight.bold, size: 18, textcolor: customBalck),
                 RatingBar.builder(
                   initialRating: 3,
                   minRating: 1,
@@ -74,21 +73,21 @@ class _RestaurentsState extends State<Restaurents> {
           ),
           Expanded(
             child: FutureBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
-              future: _futureRestaurents,
+              future: _futureRestaurants,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Text("Error: ${snapshot.error}");
                 } else if (snapshot.hasData) {
-                  final Restaurents = snapshot.data!;
+                  final Restaurants = snapshot.data!;
                   return ResponsiveGridList(
                     desiredItemWidth:300,
                     minSpacing: 10,
-                    children: Restaurents.map((movie) => _buildMovieCard(movie)).toList(),
+                    children: Restaurants.map((movie) => _buildMovieCard(movie)).toList(),
                   );
                 } else {
-                  return const Text('No Restaurents found');
+                  return const Text('No Restaurants found');
                 }
               },
             ),
@@ -114,7 +113,7 @@ class _RestaurentsState extends State<Restaurents> {
             ListTile(
               title: Text('Restaurants'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurents()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurants()));
               },
             ),
             ListTile(

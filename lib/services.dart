@@ -122,7 +122,7 @@ class _ServicesState extends State<Services> {
             ListTile(
               title: Text('Restaurants'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurents()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Restaurants()));
               },
             ),
             ListTile(
