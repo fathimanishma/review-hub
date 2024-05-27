@@ -4,6 +4,7 @@ import 'package:review_hub/CustomWidgets/customButton.dart';
 import 'package:review_hub/CustomWidgets/customText.dart';
 import 'package:review_hub/CustomWidgets/customTextField.dart';
 import 'package:review_hub/constants/colors.dart';
+import 'package:review_hub/user/homePage.dart';
 import 'package:review_hub/user/login.dart';
 
 class Register extends StatefulWidget {
@@ -15,9 +16,57 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController name = TextEditingController();
-  final TextEditingController email = TextEditingController();
-  final TextEditingController password = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Password must contain at least one digit';
+    }
+    if (!RegExp(r'[!@#\$&*~]').hasMatch(value)) {
+      return 'Password must contain at least one special character';
+    }
+    return null;
+  }
+
+  Future<void> _onRegisterClick() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      try {
+        await FirebaseFirestore.instance.collection('users').add({
+          'name': nameController.text,
+          'email': emailController.text,
+          'password': passwordController.text,
+          'status': '0',
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration successful')),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,17 +75,17 @@ class _RegisterState extends State<Register> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Stack(
-          
             children: [
               Container(
                 height: 250,
                 color: Colors.white,
                 child: Center(
                   child: AppText(
-                      text: 'REVIEW HUB',
-                      weight: FontWeight.w600,
-                      size: 20,
-                      textcolor: maincolor),
+                    text: 'REVIEW HUB',
+                    weight: FontWeight.w600,
+                    size: 20,
+                    textcolor: maincolor,
+                  ),
                 ),
               ),
               Padding(
@@ -45,8 +94,9 @@ class _RegisterState extends State<Register> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20)),
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
                     color: Color.fromARGB(255, 8, 27, 133),
                   ),
                   child: Form(
@@ -56,22 +106,24 @@ class _RegisterState extends State<Register> {
                         Padding(
                           padding: const EdgeInsets.all(28.0),
                           child: AppText(
-                              text: 'REGISTER',
-                              weight: FontWeight.w600,
-                              size: 20,
-                              textcolor: white),
+                            text: 'REGISTER',
+                            weight: FontWeight.w600,
+                            size: 20,
+                            textcolor: white,
+                          ),
                         ),
-                        _buildTextField('Name', name),
-                        _buildTextField('Email Address', email),
-                        _buildTextField('Password', password),
+                        _buildTextField('Name', nameController, false),
+                        _buildTextField('Email Address', emailController, false),
+                        _buildTextField('Password', passwordController, true),
                         _loginPrompt(context),
                         Padding(
                           padding: const EdgeInsets.all(28.0),
                           child: CustomButton(
-                              btnname: 'Register',
-                              btntheam: white,
-                              textcolor: maincolor,
-                              click: _onRegisterClick),
+                            btnname: 'Register',
+                            btntheam: white,
+                            textcolor: maincolor,
+                            click: _onRegisterClick,
+                          ),
                         ),
                       ],
                     ),
@@ -85,14 +137,14 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  Widget _buildTextField(String hint, TextEditingController controller) {
+  Widget _buildTextField(String hint, TextEditingController controller, bool isPassword) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 28),
       child: CustomTextField(
-        
         hint: hint,
         controller: controller,
-        validator: (value) => value?.isEmpty ?? true ? 'Please enter $hint' : null,
+        validator: isPassword ? validatePassword : (value) => value?.isEmpty ?? true ? 'Please enter $hint' : null,
+        // obscureText: isPassword,
       ),
     );
   }
@@ -107,35 +159,22 @@ class _RegisterState extends State<Register> {
             text: 'Already have an account? ',
             weight: FontWeight.w400,
             size: 14,
-            textcolor: white),
+            textcolor: white,
+          ),
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, '/login'),
+            onTap: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            ),
             child: AppText(
               text: 'Login',
               weight: FontWeight.w400,
               size: 14,
-              textcolor: red),
+              textcolor: red,
+            ),
           ),
         ],
       ),
     );
-  }
-
-  Future<void> _onRegisterClick() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      print('added');
-       await FirebaseFirestore.instance.collection('users').add({
-          'name': name.text,
-          'email': email.text,
-          'password': password.text,       
-          'status':'0'
-
-        }).then((value) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration successfull...')));
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return HomeScreen();
-          }));
-        });
-    }
   }
 }

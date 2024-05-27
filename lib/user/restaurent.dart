@@ -4,22 +4,22 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:review_hub/constants/colors.dart';
 import 'package:review_hub/user/movieview.dart';
 
-class Restaurents extends StatefulWidget {
-  Restaurents({Key? key}) : super(key: key);
+class Restaurants extends StatefulWidget {
+  Restaurants({Key? key}) : super(key: key);
 
   @override
-  _RestaurentsState createState() => _RestaurentsState();
+  _RestaurantsState createState() => _RestaurantsState();
 }
 
-class _RestaurentsState extends State<Restaurents> {
+class _RestaurantsState extends State<Restaurants> {
   final TextEditingController search = TextEditingController();
-  late Stream<QuerySnapshot> _RestaurentsStream;
+  late Stream<QuerySnapshot> _RestaurantsStream;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the stream to display all Restaurents initially
-    _RestaurentsStream = FirebaseFirestore.instance
+    // Initialize the stream to display all Restaurants initially
+    _RestaurantsStream = FirebaseFirestore.instance
         .collection('items')
         .where('category', isEqualTo: 'Hotel')
         .snapshots();
@@ -28,7 +28,7 @@ class _RestaurentsState extends State<Restaurents> {
   void _onSearchChanged(String query) {
     if (query.isNotEmpty) {
       setState(() {
-        _RestaurentsStream = FirebaseFirestore.instance
+        _RestaurantsStream = FirebaseFirestore.instance
             .collection('items')
             // .where('category', isEqualTo: 'Movie')
             .where('name', isGreaterThanOrEqualTo: query)
@@ -38,7 +38,7 @@ class _RestaurentsState extends State<Restaurents> {
     } else {
       // Reset to initial stream if search query is cleared
       setState(() {
-        _RestaurentsStream = FirebaseFirestore.instance
+        _RestaurantsStream = FirebaseFirestore.instance
             .collection('items')
             .where('category', isEqualTo: 'Hotel')
             .snapshots();
@@ -51,7 +51,7 @@ class _RestaurentsState extends State<Restaurents> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: maincolor,
-        title: const Text('Restaurents'),
+        title: const Text('Restaurants'),
       ),
       body: Center(
         child: Padding(
@@ -64,7 +64,7 @@ class _RestaurentsState extends State<Restaurents> {
                   controller: search,
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
-                    hintText: 'Search Restaurents',
+                    hintText: 'Search Restaurants',
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -77,7 +77,7 @@ class _RestaurentsState extends State<Restaurents> {
               ),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream: _RestaurentsStream,
+                  stream: _RestaurantsStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: SizedBox(
@@ -86,7 +86,7 @@ class _RestaurentsState extends State<Restaurents> {
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else if (snapshot.data?.docs.isEmpty ?? true) {
-                      return const Text('No Restaurents found.');
+                      return const Text('No Restaurants found.');
                     } else {
                       return GridView.builder(
                         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

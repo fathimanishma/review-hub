@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
           children: [
             // _buildSearchBar(),
             _buildCategory("Movie", Movies()),
-            _buildCategory("Hotel", Restaurents()),
+            _buildCategory("Hotel", Restaurants()),
             _buildCategory("Product", Toys()),
             _buildCategory("Service", Services()),
             _buildCategory("Channel", Channel()),

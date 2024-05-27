@@ -1,16 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:review_hub/CustomWidgets/customButton.dart';
 import 'package:review_hub/CustomWidgets/customText.dart';
 import 'package:review_hub/CustomWidgets/customTextField.dart';
 import 'package:review_hub/constants/colors.dart';
-import 'package:review_hub/user/emailpage.dart';
-import 'package:review_hub/user/homePage.dart';
-import 'package:review_hub/user/register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'homePage.dart';
+import 'register.dart';
+import 'emailpage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,16 +19,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController email = TextEditingController();
-  final TextEditingController password = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   Future<void> login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     try {
       final QuerySnapshot<Map<String, dynamic>> customerSnapshot =
           await FirebaseFirestore.instance
               .collection('users')
-              .where('email', isEqualTo: email.text)
-              .where('password', isEqualTo: password.text)
+              .where('email', isEqualTo: emailController.text)
+              .where('password', isEqualTo: passwordController.text)
               .get();
 
       if (customerSnapshot.docs.isNotEmpty) {
@@ -48,23 +52,42 @@ class _HomeScreenState extends State<HomeScreen> {
         spref.setString('email', email);
         spref.setString('password', password);
 
-        // User found, navigate to HomePage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => HomePage()),
         );
       } else {
-        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Invalid email or password!')),
         );
       }
     } catch (e) {
-      // Handle errors here, perhaps log to your server
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
     }
+  }
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Password must contain at least one digit';
+    }
+    if (!RegExp(r'[!@#\$&*~]').hasMatch(value)) {
+      return 'Password must contain at least one special character';
+    }
+    return null;
   }
 
   @override
@@ -80,9 +103,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               flex: 3,
               child: _LoginSection(
-                emailController: email,
-                passwordController: password,
+                formKey: _formKey,
+                emailController: emailController,
+                passwordController: passwordController,
                 onLogin: login,
+                validatePassword: validatePassword,
               ),
             ),
           ],
@@ -112,15 +137,19 @@ class _HeaderSection extends StatelessWidget {
 }
 
 class _LoginSection extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final Function onLogin;
+  final String? Function(String?) validatePassword;
 
   const _LoginSection({
     Key? key,
+    required this.formKey,
     required this.emailController,
     required this.passwordController,
     required this.onLogin,
+    required this.validatePassword,
   }) : super(key: key);
 
   @override
@@ -150,16 +179,19 @@ class _LoginSection extends StatelessWidget {
                     topRight: Radius.circular(20)),
                 color: Color.fromARGB(255, 8, 27, 133),
               ),
-              child: Column(
-                children: [
-                  _buildLoginText(context),
-                  _buildTextField(context, 'Email Address', emailController),
-                  _buildTextField(context, 'Password', passwordController),
-                  _buildForgotPassword(context),
-                  _buildLoginButton(context),
-                  _buildCreateAccount(context),
-                  _buildGoogleSignIn(context),
-                ],
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    _buildLoginText(context),
+                    _buildTextField(context, 'Email Address', emailController, false),
+                    _buildTextField(context, 'Password', passwordController, true),
+                    _buildForgotPassword(context),
+                    _buildLoginButton(context),
+                    _buildCreateAccount(context),
+                    _buildGoogleSignIn(context),
+                  ],
+                ),
               ),
             ),
           ),
@@ -181,14 +213,14 @@ class _LoginSection extends StatelessWidget {
   }
 
   Padding _buildTextField(
-      BuildContext context, String hint, TextEditingController controller) {
+      BuildContext context, String hint, TextEditingController controller, bool isPassword) {
     return Padding(
       padding: const EdgeInsets.only(top: 28, right: 28, left: 28),
       child: CustomTextField(
         hint: hint,
         controller: controller,
-        validator: (value) =>
-            value?.isEmpty ?? true ? 'Please enter $hint' : null,
+        validator: isPassword ? validatePassword : (value) => value?.isEmpty ?? true ? 'Please enter $hint' : null,
+        // obscureText: isPassword,
       ),
     );
   }
@@ -197,7 +229,7 @@ class _LoginSection extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(18.0),
       child: InkWell(
-        onTap: (){
+        onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return EmailPage();
           },));
@@ -244,55 +276,55 @@ class _LoginSection extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Container(
-        //   height: 30,
-        //   child: Image.asset('assets/images/google.png'),
-        // ),
-        // InkWell(
-        //    onTap: (){
-        //     _loginWithGoogle(context);
-        //   },
-        //   child: AppText(
-        //     text: 'Sign in with Google',
-        //     weight: FontWeight.w400,
-        //     size: 12,
-        //     textcolor: white,
-        //   ),
-        // )
+        Container(
+          height: 30,
+          child: Image.asset('assets/images/google.png'),
+        ),
+        InkWell(
+          onTap: () {
+            _loginWithGoogle(context);
+          },
+          child: AppText(
+            text: 'Sign in with Google',
+            weight: FontWeight.w400,
+            size: 12,
+            textcolor: white,
+          ),
+        ),
       ],
     );
   }
-  
-Future<void> _loginWithGoogle(BuildContext context) async {
-  final GoogleSignIn googleSignIn = GoogleSignIn();
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-  try {
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser != null) {
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+  Future<void> _loginWithGoogle(BuildContext context) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser != null) {
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
-      if (user != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => HomePage()), // Assume HomePage is the target after login
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
         );
+
+        final UserCredential userCredential = await firebaseAuth.signInWithCredential(credential);
+        final User? user = userCredential.user;
+
+        if (user != null) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => HomePage()),
+          );
+        }
       }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign in with Google: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-  } catch (error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Failed to sign in with Google: $error'),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
-}
 }
